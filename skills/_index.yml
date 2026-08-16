@@ -1,0 +1,52 @@
+generated: '2026-08-16'
+method: generated
+source: >-
+  openapi/furiosa-predict-v2.yaml, openapi/furiosa-model-repository-v2.yaml,
+  https://developer.furiosa.ai/latest/en/furiosa_llm/furiosa-llm-serve.html,
+  https://developer.furiosa.ai/latest/en/furiosa_llm/responses-api.html
+note: >-
+  Packaged operating instructions for the two Furiosa HTTP surfaces, grounded in real published
+  operationIds (Model Server) and real documented method+path pairs (Furiosa-LLM, which has no
+  published OpenAPI). Nothing here is invented.
+  Separately: FuriosaAI does publish Agent Skills of its own at
+  https://github.com/furiosa-ai/agent_skills (commit-msg, pr-create, pr-restructure, pr-update,
+  prepare-docs, write-docs, update-docs, distributed as a Claude Code plugin marketplace). Those
+  are FuriosaAI's INTERNAL engineering-workflow skills — they automate its own docs and PR
+  process and say nothing about calling FuriosaAI's APIs — so they are recorded here as a
+  finding rather than copied into this directory.
+provider_published_skills:
+  repo: https://github.com/furiosa-ai/agent_skills
+  kind: internal engineering workflow
+  skills: [commit-msg, pr-create, pr-restructure, pr-update, prepare-docs, write-docs, update-docs]
+  covers_provider_api: false
+skills:
+  - file: furiosa-serve-a-model.md
+    name: furiosa-serve-a-model
+    api: furiosa-model-repository-v2
+    description: Load a model into a Furiosa Model Server and verify readiness before inference.
+    operations:
+      - post-v2-repository-index
+      - post-v2-repository-models-$-MODEL_NAME-load
+      - get-v2-models-$-modelName-versions-$-modelVersion-ready
+      - get-v2-models-$-modelName-versions-$-modelVersion
+      - get-v2-health-ready
+  - file: furiosa-run-inference.md
+    name: furiosa-run-inference
+    api: furiosa-server-predict-v2
+    description: Build and send a KServe v2 inference request from the model's own tensor metadata.
+    operations:
+      - get-v2
+      - get-v2-models-$-modelName-versions-$-modelVersion
+      - post-v2-models-$-MODEL_NAME-versions-$-MODEL_VERSION-infer
+  - file: furiosa-llm-openai-client.md
+    name: furiosa-llm-openai-client
+    api: furiosa-llm-openai-server
+    description: Call the Furiosa-LLM OpenAI-compatible server, including every documented deviation from OpenAI and OpenResponses.
+    operations:
+      - GET /v1/models
+      - POST /v1/chat/completions
+      - POST /v1/completions
+      - POST /v1/responses
+      - POST /v1/embeddings
+      - GET /metrics
+skill_count: 3

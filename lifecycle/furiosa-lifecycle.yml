@@ -1,0 +1,71 @@
+generated: '2026-08-16'
+method: searched
+source: >-
+  https://developer.furiosa.ai/latest/en/whatsnew/index.html,
+  https://developer.furiosa.ai/latest/en/overview/roadmap.html,
+  https://developer.furiosa.ai/latest/en/get_started/upgrade_guide.html
+versioning:
+  scheme: calendar
+  pattern: YYYY.MINOR.PATCH
+  current: 2026.3.0
+  api_versioning: >-
+    Two independent version axes. (1) The SOFTWARE is on the calendar train above.
+    (2) The HTTP surfaces carry their own path-embedded major version that has not moved:
+    furiosa-server serves /v2/* (KServe Predict Protocol v2 + Triton Model Repository v2), and
+    furiosa-llm serve exposes OpenAI-compatible /v1/* plus /v2/rerank. Neither has ever been
+    version-bumped by FuriosaAI; they track the upstream protocol version.
+  docs_versioning: >-
+    The developer center is version-pinned - /latest/ plus /v2025.3.0/, /v2025.1.0/,
+    /v2024.1.0/ trees with an in-page version switcher, and a separate Gen-1 (Warboy) doc site.
+deprecation:
+  policy_published: true
+  policy_url: https://developer.furiosa.ai/latest/en/whatsnew/release-2026.3.0.html
+  mechanism: >-
+    Deprecations and breaking changes are announced in a dedicated
+    "🚨 Breaking Changes & Deprecations" section of each release note, each with an explicit
+    Migration paragraph. There is no separate standing deprecation-policy document, no notice
+    window commitment, and no RFC 8594 Sunset/Deprecation HTTP header usage documented on
+    either HTTP surface.
+  rfc8594_headers: false
+  examples:
+    - release: 2026.3.0
+      change: POST /metrics now returns 405 Method Not Allowed (was 200); GET only.
+      migration: Point monitoring scrapers and health checks at GET /metrics.
+    - release: 2026.3.0
+      change: Installing the firmware image package no longer auto-runs the firmware updater.
+      migration: Run `sudo furiosa_rngd_updater_all` manually, then cold reboot.
+  deprecated_operations: []
+  deprecated_operations_note: >-
+    Neither openapi/furiosa-predict-v2.yaml nor openapi/furiosa-model-repository-v2.yaml marks
+    any operation `deprecated: true`.
+  legacy_generation:
+    surface: furiosa-sdk 0.10.x (Warboy / Gen-1) - furiosa-runtime, furiosa-quantizer, furiosa-tools, furiosa-device, furiosa-server
+    last_release: '2024-05-29'
+    status: superseded-not-formally-deprecated
+    note: >-
+      The whole Gen-1 Python stack has been static on PyPI since 2024-05-29 while the RNGD stack
+      shipped 2026.1 through 2026.3. The docs keep a separate "Furiosa Gen 1 NPU SDK Doc" link but
+      publish no end-of-life date or sunset commitment for it. This is the clearest decay signal
+      on the profile and it is a gap FuriosaAI could close with one dated statement.
+status_page:
+  published: false
+  probed:
+    - url: https://status.furiosa.ai
+      status: 000
+      note: DNS does not resolve.
+  note: >-
+    No status page, and arguably none is owed - FuriosaAI ships self-hosted inference software
+    and hardware rather than a hosted multi-tenant API, so there is no FuriosaAI-operated
+    runtime whose uptime could be reported. NO StatusPage pointer is emitted.
+sla:
+  published: false
+  note: No public SLA. Support runs through the community forums and an Atlassian service desk.
+support:
+  forums: https://forums.furiosa.ai/
+  service_desk: https://furiosa-ai.atlassian.net/servicedesk/customer/portals
+roadmap:
+  published: true
+  url: https://developer.furiosa.ai/latest/en/overview/roadmap.html
+  note: >-
+    A genuinely forward-looking, quarter-bucketed roadmap - upcoming 2026 Q3 items marked 🔨 and
+    delivered items marked ✅ back to 2024 Q4. Uncommon in this catalog and worth crediting.

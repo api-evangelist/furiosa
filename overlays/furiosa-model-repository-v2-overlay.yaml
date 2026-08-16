@@ -1,0 +1,55 @@
+overlay: 1.0.0
+info:
+  title: API Evangelist enhancements for the Furiosa Model Server Model Repository API
+  version: 1.0.0
+x-generated: '2026-08-16'
+x-method: generated
+x-source: openapi/furiosa-model-repository-v2.yaml
+x-note: >-
+  Non-destructive enhancements to the spec FuriosaAI publishes at
+  python/furiosa-server/openapi/model_repository.yaml. The original is saved verbatim. The
+  material addition here is a security posture note: every operation on this surface changes
+  server state and none declares any authentication.
+extends: openapi/furiosa-model-repository-v2.yaml
+actions:
+  - target: $.info
+    update:
+      x-provider: FuriosaAI, Inc.
+      x-provider-url: https://furiosa.ai/
+      x-product: Furiosa Model Server (furiosa-server)
+      x-spec-origin: >-
+        Vendored by FuriosaAI into furiosa-ai/furiosa-sdk as the published contract of Furiosa
+        Model Server's model-management surface. info.title/description name the upstream Triton
+        Inference Server Model Repository extension because that protocol is implemented verbatim.
+      x-deployment: customer-hosted
+      x-security-posture: >-
+        No securitySchemes and no security requirement are declared, and the furiosa-server
+        README lists authentication as an unchecked roadmap item. Load and unload of arbitrary
+        models from the repository root are therefore unauthenticated - this surface must not be
+        exposed beyond a trusted network.
+  - target: $.servers
+    update:
+      - url: http://{host}:{port}
+        description: Customer-hosted Furiosa Model Server REST endpoint (default port 8080).
+        variables:
+          host:
+            default: localhost
+          port:
+            default: '8080'
+  - target: $.paths['/v2/repository/index'].post
+    update:
+      x-idempotent: true
+      x-note: >-
+        A POST that reads. Modelled as POST by the Triton extension because it takes a body
+        ({"ready": bool}); it has no side effects.
+  - target: $.paths['/v2/repository/models/${MODEL_NAME}/load'].post
+    update:
+      x-idempotent: false
+      x-consequence: state-change
+      x-response-semantics: Bare 200 on success, 400 on failure, no body (BooleanResponse).
+  - target: $.paths['/v2/repository/models/${MODEL_NAME}/unload'].post
+    update:
+      x-idempotent: false
+      x-consequence: state-change
+      x-response-semantics: Bare 200 on success, 400 on failure, no body.
+      x-warning: Unloading a model in use will fail in-flight inference requests against it.

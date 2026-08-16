@@ -1,0 +1,121 @@
+generated: '2026-08-16'
+method: derived
+source: openapi/furiosa-predict-v2.yaml, openapi/furiosa-model-repository-v2.yaml
+summary: >-
+  The Furiosa Model Server data model is a tensor-transport model, not a business-object model.
+  There are no persistent resources with identifiers to relate - no accounts, no records, no
+  soft-delete. The entity graph is the request/response envelope around a tensor, plus the
+  model-repository index that names what can be inferred against. Nothing here has an id prefix
+  scheme, because nothing here is stored.
+entities:
+  - name: inference_request
+    description: An inference call - a set of named input tensors plus optionally the outputs to return.
+    fields:
+      id: string
+      parameters: parameters
+      inputs: request_input[] (required)
+      outputs: request_output[]
+    relationships:
+      - has_many: request_input
+        via: inputs
+      - has_many: request_output
+        via: outputs
+      - has_one: parameters
+        via: parameters
+  - name: request_input
+    description: A single named input tensor - name, shape, datatype and data.
+    fields:
+      name: string (required)
+      shape: integer[] (required)
+      datatype: string (required)
+      parameters: parameters
+      data: tensor_data (required)
+    relationships:
+      - has_one: tensor_data
+        via: data
+      - has_one: parameters
+        via: parameters
+  - name: request_output
+    description: A requested output tensor, by name.
+    fields:
+      name: string (required)
+      parameters: parameters
+  - name: inference_response
+    description: The result of an inference call, echoing model name/version and carrying output tensors.
+    fields:
+      model_name: string (required)
+      model_version: string
+      id: string
+      parameters: parameters
+      outputs: response_output[] (required)
+    relationships:
+      - has_many: response_output
+        via: outputs
+      - belongs_to: metadata_model_response
+        via: model_name + model_version
+  - name: response_output
+    description: A single named output tensor returned by the model.
+    fields:
+      name: string (required)
+      shape: integer[] (required)
+      datatype: string (required)
+      parameters: parameters
+      data: tensor_data (required)
+    relationships:
+      - has_one: tensor_data
+        via: data
+  - name: tensor_data
+    description: The flattened tensor payload - a recursive array of numbers, booleans or strings.
+  - name: parameters
+    description: An open key/value extension bag attached to requests, inputs, outputs and responses.
+  - name: metadata_server_response
+    description: Server identity - name, version and supported protocol extensions.
+    fields:
+      name: string (required)
+      version: string (required)
+      extensions: string[] (required)
+  - name: metadata_model_response
+    description: Model identity and tensor contract - platform, versions, inputs and outputs.
+    fields:
+      name: string (required)
+      versions: string[]
+      platform: string (required)
+      inputs: metadata_tensor[]
+      outputs: metadata_tensor[]
+    relationships:
+      - has_many: metadata_tensor
+        via: inputs
+      - has_many: metadata_tensor
+        via: outputs
+  - name: metadata_tensor
+    description: The declared name, datatype and shape of one model input or output.
+    fields:
+      name: string (required)
+      datatype: string (required)
+      shape: integer[] (required)
+  - name: repository_index_request
+    description: A request to list the model repository, optionally filtered to ready models.
+    fields:
+      ready: boolean
+  - name: repository_index_response
+    description: The repository listing - an array of {name, version, state, reason}.
+    relationships:
+      - has_many: metadata_model_response
+        via: name
+        note: Soft join by model name; the index is not a $ref to the model metadata schema.
+key_relationships:
+  - from: inference_request
+    to: metadata_model_response
+    type: validated_against
+    via: input tensor name/shape/datatype must match the model metadata
+    note: >-
+      This is the load-bearing relationship for any caller and it is enforced at runtime rather
+      than in the schema - inference_request.inputs[].shape is a free integer array, so a mismatch
+      surfaces as a 400 inference_error_response, not as a schema validation failure.
+  - from: repository_index_response
+    to: inference_request
+    type: gates
+    via: a model must be loaded and ready before /v2/models/{name}/infer will serve it
+id_prefixes: []
+entity_count: 13
+render: null

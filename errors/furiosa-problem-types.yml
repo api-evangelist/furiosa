@@ -1,0 +1,95 @@
+generated: '2026-08-16'
+method: derived
+source: >-
+  openapi/furiosa-predict-v2.yaml, openapi/furiosa-model-repository-v2.yaml,
+  https://github.com/furiosa-ai/furiosa-sdk/blob/main/python/furiosa-server/furiosa/server/errors.py,
+  https://developer.furiosa.ai/latest/en/whatsnew/release-2026.3.0.html
+format: custom
+format_note: >-
+  NOT RFC 9457. Neither surface uses application/problem+json. furiosa-server returns the KServe
+  v2 error shape - `{"error": "<message>"}` with application/json - and furiosa-llm serve returns
+  the OpenAI error object. There is no error CODE registry on either surface: the machine-readable
+  part of a Furiosa error is the HTTP status, and the `error` string is human-prose only. That is
+  the single biggest error-semantics gap on this profile, and it is upstream in KServe v2 rather
+  than something FuriosaAI invented.
+envelope:
+  furiosa_server:
+    media_type: application/json
+    shape:
+      error: string
+    schemas:
+      - metadata_server_error_response
+      - metadata_model_error_response
+      - inference_error_response
+      - repository_index_error_response
+      - repository_load_error_response
+      - repository_unload_error_response
+  furiosa_llm:
+    media_type: application/json
+    shape: OpenAI error object (documented upstream by OpenAI, not tabulated by FuriosaAI)
+problem_types:
+  - status: 400
+    title: Server metadata unavailable
+    operation: get-v2
+    api: furiosa-server-predict-v2
+    schema: metadata_server_error_response
+    detail_field: error
+    remediation: Confirm the server process started and finished loading its repository.
+  - status: 400
+    title: Model metadata unavailable
+    operation: get-v2-models-$-modelName-versions-$-modelVersion
+    api: furiosa-server-predict-v2
+    schema: metadata_model_error_response
+    detail_field: error
+    remediation: >-
+      Most commonly the model or version is not in the repository. furiosa-server raises
+      ModelNotFound with the message "Model {name} not found" or
+      "Model {name} with version {version} not found" (furiosa/server/errors.py).
+  - status: 400
+    title: Inference failed
+    operation: post-v2-models-$-MODEL_NAME-versions-$-MODEL_VERSION-infer
+    api: furiosa-server-predict-v2
+    schema: inference_error_response
+    detail_field: error
+    remediation: >-
+      Check the request tensors against GET /v2/models/{name}/versions/{version} - name, shape and
+      datatype must match the model metadata exactly.
+  - status: 400
+    title: Repository index failed
+    operation: post-v2-repository-index
+    api: furiosa-model-repository-v2
+    schema: repository_index_error_response
+    detail_field: error
+  - status: 400
+    title: Model load failed
+    operation: post-v2-repository-models-$-MODEL_NAME-load
+    api: furiosa-model-repository-v2
+    schema: repository_load_error_response
+    detail_field: error
+    note: >-
+      The spec declares only a 200 response for this operation; the error schema exists in
+      components but is not bound to a response. Derived from the schema's presence and name.
+  - status: 400
+    title: Model unload failed
+    operation: post-v2-repository-models-$-MODEL_NAME-unload
+    api: furiosa-model-repository-v2
+    schema: repository_unload_error_response
+    detail_field: error
+    note: Same as load - schema present in components, not wired to a response in the spec.
+  - status: 405
+    title: Method Not Allowed on /metrics
+    operation: null
+    api: furiosa-llm-openai-server
+    detail_field: null
+    remediation: >-
+      Introduced as a breaking change in SDK 2026.3.0 - POST /metrics used to return 200 and now
+      returns 405. Scrape /metrics with GET.
+health_semantics:
+  note: >-
+    The v2 health and readiness endpoints do not use an error body at all. furiosa-server's
+    BooleanResponse returns bare 200 for true and 400 for false on
+    /v2/health/live, /v2/health/ready and /v2/models/{name}/versions/{version}/ready, and the
+    same pattern covers repository load/unload. So a 400 on those paths means "not ready",
+    not "malformed request" - an agent that treats 4xx as a client bug will misread it.
+error_code_registry: false
+problem_type_count: 7

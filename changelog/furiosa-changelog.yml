@@ -1,0 +1,62 @@
+generated: '2026-08-16'
+method: searched
+source: https://developer.furiosa.ai/latest/en/whatsnew/index.html
+docs: https://developer.furiosa.ai/latest/en/whatsnew/index.html
+scheme: calendar
+scheme_note: >-
+  FuriosaAI versions the whole SDK on a YYYY.MINOR.PATCH calendar train (2026.3.0), and the
+  developer center is versioned alongside it — /latest/ plus pinned /v2025.3.0/, /v2025.1.0/
+  and older trees, with a "Choose version" switcher. Release notes are per-train, not per-package,
+  and each note ends with a Released Components table naming the exact PyPI / APT / YUM / Docker
+  Hub / quay.io version shipped in that train.
+current_version: 2026.3.0
+current_version_released: '2026-06-30'
+release_dates_note: >-
+  The release notes pages are not dated in-page. The dates below are the publish dates read from
+  the registries that carry the release (PyPI furiosa-llm, Docker Hub furiosaai/furiosa-llm),
+  which is the closest verifiable dating available.
+entries:
+  - version: 2026.3.0
+    date: '2026-06-30'
+    url: https://developer.furiosa.ai/latest/en/whatsnew/release-2026.3.0.html
+    breaking: true
+    highlights:
+      - TCL (Tensor Contraction Language) kernel framework and the furiosa-kernels package.
+      - FXB (Furiosa Executable Bundle) shareable compiled-artifact format, publishable to the Hugging Face Hub.
+      - First multimodal / vision-language serving on RNGD (Qwen3-VL).
+      - New MoE families brought up - gpt-oss, Solar-Open, Qwen3 MoE, K-EXAONE.
+      - Overlap scheduler for zero-overhead batching; scoring-based Data Parallel router.
+      - Driver and firmware also published as .el10 RPMs for Rocky Linux 10 / RHEL.
+    breaking_changes:
+      - change: /metrics is GET-only.
+        detail: >-
+          A POST to /metrics previously returned 200; it now returns 405 Method Not Allowed.
+          Monitoring scrapers and health checks must use GET.
+      - change: Firmware upgrade is now a manual step.
+        detail: >-
+          Installing the firmware image package no longer triggers the updater. Run
+          `sudo furiosa_rngd_updater_all` (or furiosa_rngd_updater -b <BDF> -f <image>) then cold reboot.
+  - version: 2026.2.0
+    date: '2026-04-30'
+    url: https://developer.furiosa.ai/latest/en/whatsnew/release-2026.2.0.html
+    breaking: unknown
+    highlights:
+      - Responses API (OpenResponses specification) support in the OpenAI-compatible server.
+      - Data Parallel router with prefix-aware routing.
+      - OpenTelemetry observability and per-device metrics.
+  - version: 2026.1.0
+    date: '2026-02-13'
+    url: https://developer.furiosa.ai/latest/en/whatsnew/release-2026.1.0.html
+    breaking: unknown
+    highlights:
+      - Qwen3 dense and Qwen3 MoE (FP8) plus EXAONE 4.0 model support.
+      - Python 3.14 support (3.10-3.14); broader arm64 support across wheels and images.
+  - version: 2025.x
+    date: null
+    url: https://developer.furiosa.ai/latest/en/whatsnew/release-2025.html
+    breaking: unknown
+    highlights:
+      - Chat API, tool-calling, prefix caching, pooling models (embedding/score/rank).
+      - API-key-based authentication support in the OpenAI-compatible server.
+      - llm-d integration, Kubernetes NPU operator, DRA support.
+entry_count: 4

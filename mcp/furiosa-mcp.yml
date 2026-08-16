@@ -1,0 +1,50 @@
+generated: '2026-08-16'
+method: derived
+source: >-
+  openapi/furiosa-predict-v2.yaml + openapi/furiosa-model-repository-v2.yaml, cross-checked
+  against https://developer.furiosa.ai/latest/en/furiosa_llm/responses-api.html and
+  https://developer.furiosa.ai/latest/en/furiosa_llm/furiosa-llm-serve.html
+status: candidate
+deployment:
+  mode: none
+  auth: unknown
+  verified: derived
+note: >-
+  FuriosaAI ships NO MCP server, hosted or stdio. Searched the furiosa-ai GitHub org (158 public
+  repos), PyPI, npm and the developer center; nothing publishes an MCP endpoint or an
+  `npx`/`python -m` MCP package. The one MCP mention in the whole developer center is a
+  NEGATIVE: the Responses API page states that OpenResponses built-in tools —
+  "web_search, file_search, code_interpreter, computer_use, and mcp tools are not supported.
+  Only custom function tools are available." So Furiosa-LLM is not even an MCP *client* yet.
+  The tools below are a DERIVED candidate surface from the KServe v2 Predict / Triton Model
+  Repository OpenAPI that FuriosaAI publishes for furiosa-server. They are a proposal, not a
+  product. No endpoint URL is asserted because none exists.
+tools:
+  - name: server_live
+    description: Check whether the inference server is able to receive and respond to requests.
+    rest: get-v2-health-live
+  - name: server_ready
+    description: Check whether all models loaded on the server are ready for inferencing.
+    rest: get-v2-health-ready
+  - name: model_ready
+    description: Check whether a named model (and optional version) is ready to serve inference.
+    rest: get-v2-models-$-modelName-versions-$-modelVersion-ready
+  - name: server_metadata
+    description: Retrieve server name, version and the protocol extensions the server supports.
+    rest: get-v2
+  - name: model_metadata
+    description: Retrieve a model's platform, versions, and input/output tensor metadata.
+    rest: get-v2-models-$-modelName-versions-$-modelVersion
+  - name: infer
+    description: Run an inference request against a named model version on a FuriosaAI NPU.
+    rest: post-v2-models-$-MODEL_NAME-versions-$-MODEL_VERSION-infer
+  - name: repository_index
+    description: List the models in the server's model repository and their readiness state.
+    rest: post-v2-repository-index
+  - name: load_model
+    description: Load a model from the model repository into the server.
+    rest: post-v2-repository-models-$-MODEL_NAME-load
+  - name: unload_model
+    description: Unload a model from the server.
+    rest: post-v2-repository-models-$-MODEL_NAME-unload
+tool_count: 9

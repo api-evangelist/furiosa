@@ -1,0 +1,99 @@
+generated: '2026-08-16'
+method: searched
+source: >-
+  https://developer.furiosa.ai/latest/en/furiosa_llm/furiosa-llm-serve.html,
+  https://developer.furiosa.ai/latest/en/furiosa_llm/responses-api.html,
+  openapi/furiosa-predict-v2.yaml, openapi/furiosa-model-repository-v2.yaml
+summary: >-
+  FuriosaAI does not design its own HTTP semantics. It implements two borrowed contracts
+  verbatim - the OpenAI/OpenResponses shape for furiosa-llm serve, and the KServe v2 Predict
+  Protocol plus the Triton Model Repository extension for furiosa-server. Almost every
+  convention below is therefore inherited, and where FuriosaAI adds something it is documented
+  as an explicit "Furiosa-LLM-specific extension". Callers should read this as: an existing
+  OpenAI SDK works against Furiosa unmodified, and the deltas are enumerable.
+auth_style:
+  furiosa_llm: Optional OpenAI-style bearer API key, issued by the operator (see authentication/).
+  furiosa_server: None declared in spec; expected to sit behind the customer's ingress.
+idempotency:
+  supported: false
+  header: null
+  note: >-
+    No idempotency key, no request-deduplication window, and no retry-safety contract is
+    documented on either surface. This is worth stating plainly rather than leaving blank: the
+    inference endpoints are non-idempotent by nature (a retried POST /v1/chat/completions bills
+    and generates again), and the model-repository load/unload operations are state-changing
+    POSTs with no fencing token. The only naturally idempotent operations are the GET health,
+    metadata, models, version and metrics endpoints. NO Idempotency pointer is emitted in
+    apis.yml, because none is earned.
+pagination:
+  supported: false
+  note: >-
+    No collection endpoint paginates. GET /v1/models and POST /v2/repository/index both return
+    the full set - which is bounded by design, since a furiosa-llm server hosts exactly one model
+    and a model repository holds what the operator put in it.
+streaming:
+  supported: true
+  style: server-sent events
+  note: >-
+    `stream: true` on /v1/completions, /v1/chat/completions and /v1/responses returns an
+    SSE token stream; `stream_options` controls usage reporting. The Responses API emits typed
+    events (e.g. response.output_text.delta). Mutually exclusive with use_beam_search, which the
+    docs call out explicitly because beam search needs the whole sequence.
+versioning:
+  in_path: true
+  note: /v1/* on furiosa-llm serve, /v2/* on furiosa-server, /v2/rerank alongside /v1/rerank.
+error_envelope:
+  furiosa_llm: >-
+    OpenAI-compatible error object. Not tabulated in the FuriosaAI docs; documented failures are
+    described in prose (e.g. POST /metrics -> 405 Method Not Allowed as of 2026.3.0).
+  furiosa_server: >-
+    KServe v2 error shape - a JSON object with a single `error` string. The spec models this as
+    metadata_server_error_response, metadata_model_error_response, inference_error_response,
+    repository_index_error_response, repository_load_error_response and
+    repository_unload_error_response. See errors/furiosa-problem-types.yml.
+  rfc9457: false
+rate_limit_signaling:
+  supported: false
+  note: >-
+    No RateLimit-* or X-RateLimit-* headers, no 429 documented. Back-pressure is exposed as
+    TELEMETRY instead of as a protocol signal - furiosa_llm_num_requests_waiting and
+    furiosa_llm_kv_cache_usage_percent on /metrics. An agent cannot read those from its own
+    response; it has to scrape the server. See rate-limits/furiosa-rate-limits.yml.
+request_tracing:
+  request_id_header: null
+  note: >-
+    No request-id echo header is documented. Observability is Prometheus + OpenTelemetry at the
+    server, not per-response correlation identifiers.
+observability:
+  metrics_endpoint: GET /metrics
+  format: Prometheus text exposition, vLLM-compatible plus furiosa_llm_* collectors
+  opentelemetry: true
+  breaking_note: As of 2026.3.0 /metrics is GET-only; POST returns 405.
+extensions:
+  - surface: /v1/chat/completions
+    field: response.choices[].message.reasoning and response.choices[].delta.reasoning
+    note: Furiosa-LLM-specific; present only on responses that contain reasoning content, and raises AttributeError otherwise.
+  - surface: /v1/chat/completions, /v1/completions
+    field: return_token_ids
+    note: When true, adds prompt_token_ids and token_ids to the response.
+  - surface: /v1/models
+    field: artifact_id, max_prompt_len, max_context_len, runtime_config
+    note: Furiosa-LLM additions to the standard OpenAI model object.
+  - surface: /v1/responses
+    field: top_k
+    note: Furiosa-LLM extension; not part of the OpenResponses specification.
+  - surface: /score, /rerank
+    field: whole endpoint
+    note: vLLM-originated extensions to the OpenAI surface, not OpenAI endpoints.
+parameter_resolution_order:
+  note: >-
+    A convention worth knowing before debugging a sampling difference. For temperature, top_p,
+    top_k, min_p, repetition_penalty and max_tokens the server resolves, in order -
+    (1) the value in the request body, (2) the model's generation_config.json, (3) the API
+    default in the docs table. So an omitted parameter is NOT the documented default if the
+    model ships a generation_config.json.
+cross_links:
+  errors: errors/furiosa-problem-types.yml
+  lifecycle: lifecycle/furiosa-lifecycle.yml
+  authentication: authentication/furiosa-authentication.yml
+  rate_limits: rate-limits/furiosa-rate-limits.yml

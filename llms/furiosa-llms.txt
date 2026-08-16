@@ -1,0 +1,77 @@
+# FuriosaAI
+
+> FuriosaAI designs data-center AI inference chips (RNGD, a Tensor Contraction Processor on TSMC 5nm) and the software stack that runs on them. Its developer surface is software you run yourself, not a hosted API: Furiosa-LLM serves an OpenAI-compatible HTTP endpoint, and the earlier Furiosa Model Server implements the KServe v2 Predict Protocol and the Triton Model Repository extension over REST and gRPC.
+
+Generated: 2026-08-16 by API Evangelist (https://apievangelist.com). Method: generated from apis.yml and the artifacts in this repository. This is a third-party profile; FuriosaAI does not publish an llms.txt (https://furiosa.ai/llms.txt and https://developer.furiosa.ai/llms.txt both returned 404 on 2026-08-16).
+
+## Read this first
+
+- FuriosaAI operates **no hosted API**. Every endpoint below belongs to a server the customer starts on their own machine, alongside RNGD hardware. There is no FuriosaAI-issued API key, no account, no quota and no billing.
+- There is **no MCP server**, hosted or stdio, and no A2A agent card. Furiosa-LLM is not an MCP client either: the Responses API docs state that `mcp` built-in tools are not supported.
+- FuriosaAI publishes **no OpenAPI for the Furiosa-LLM server**. The parameter tables in the serving docs are the contract. It does publish OpenAPI and Protobuf for the older Furiosa Model Server.
+
+## APIs
+
+- [Furiosa-LLM OpenAI-Compatible Server](https://developer.furiosa.ai/latest/en/furiosa_llm/furiosa-llm-serve.html): Started with `furiosa-llm serve <ARTIFACT_PATH>`. Hosts exactly one model. Default base `http://localhost:8000/v1`.
+  - `POST /v1/completions` — text generation.
+  - `POST /v1/chat/completions` — chat generation; supports tools/tool_choice, streaming, structured output, and a Furiosa-specific `reasoning` field.
+  - `POST /v1/responses`, `GET /v1/responses/{response_id}`, `POST /v1/responses/{response_id}/cancel` — OpenResponses specification. Retrieval and cancellation require `--enable-responses-api-store`.
+  - `POST /v1/embeddings` — embedding models.
+  - `POST /score`, `POST /v1/score` — text-pair similarity scoring (vLLM extension; Qwen3-Rerank models only).
+  - `POST /rerank`, `POST /v1/rerank`, `POST /v2/rerank` — document reranking (vLLM extension; Qwen3-Rerank models only).
+  - `GET /v1/models`, `GET /v1/models/{model_id}` — OpenAI Models API plus `artifact_id`, `max_prompt_len`, `max_context_len`, `runtime_config`.
+  - `POST /tokenize`, `POST /detokenize`, `GET /tokenizer_info` — HuggingFace-style tokenizer wrapper.
+  - `GET /version` — Furiosa SDK component versions.
+  - `GET /metrics` — Prometheus exposition. GET-only since SDK 2026.3.0 (POST now returns 405).
+- [Furiosa Model Server — Predict API](https://github.com/furiosa-ai/furiosa-sdk/tree/main/python/furiosa-server): KServe v2 Dataplane. REST default port 8080, gRPC 8081. OpenAPI: `openapi/furiosa-predict-v2.yaml`; Protobuf: `grpc/furiosa-predict.proto`.
+  - `get-v2-health-live` — GET /v2/health/live
+  - `get-v2-health-ready` — GET /v2/health/ready
+  - `get-v2-models-$-modelName-versions-$-modelVersion-ready` — model readiness
+  - `get-v2` — GET /v2/ server metadata
+  - `get-v2-models-$-modelName-versions-$-modelVersion` — model metadata (input/output tensor contract)
+  - `post-v2-models-$-MODEL_NAME-versions-$-MODEL_VERSION-infer` — inference
+- [Furiosa Model Server — Model Repository API](https://github.com/furiosa-ai/furiosa-sdk/tree/main/python/furiosa-server): Triton Model Repository extension. OpenAPI: `openapi/furiosa-model-repository-v2.yaml`.
+  - `post-v2-repository-index` — list the repository
+  - `post-v2-repository-models-$-MODEL_NAME-load` — load a model
+  - `post-v2-repository-models-$-MODEL_NAME-unload` — unload a model
+
+## Calling conventions an agent must know
+
+- **Authentication is optional and operator-issued.** Furiosa-LLM supports an OpenAI-style bearer key, enabled by whoever launches the server; every published example sends `OPENAI_API_KEY=EMPTY`. Furiosa Model Server declares no auth at all — its `/v2/repository/*` load and unload operations are unauthenticated state changes and must stay on a trusted network.
+- **The `model` field is ignored.** Required by OpenAI clients, discarded by the server, because one process hosts one model. Read the real id from `GET /v1/models`.
+- **Sampling defaults are not the documented defaults.** `temperature`, `top_p`, `top_k`, `min_p`, `repetition_penalty` and `max_tokens` resolve as request body → the model's `generation_config.json` → the docs default.
+- **No idempotency.** No idempotency key, no dedupe window, no retry-safety contract. Retrying an inference POST re-runs it.
+- **No rate limits and no 429.** Back-pressure appears only on `/metrics` as `furiosa_llm_num_requests_waiting` and `furiosa_llm_kv_cache_usage_percent`.
+- **Errors carry no codes.** Furiosa Model Server returns `{"error": "<prose>"}`; the health and repository endpoints return a bare 200/400 with no body, so a 400 on those paths means "not ready", not "bad request".
+- **Streaming** is SSE via `stream: true`; mutually exclusive with `use_beam_search`.
+
+## Artifacts in this repository
+
+- OpenAPI: `openapi/furiosa-predict-v2.yaml`, `openapi/furiosa-model-repository-v2.yaml`
+- Protobuf: `grpc/furiosa-predict.proto`, `grpc/furiosa-model-repository.proto`
+- Overlays: `overlays/furiosa-predict-v2-overlay.yaml`, `overlays/furiosa-model-repository-v2-overlay.yaml`
+- Authentication: `authentication/furiosa-authentication.yml`
+- Conventions: `conventions/furiosa-conventions.yml`
+- Errors: `errors/furiosa-problem-types.yml`
+- Data model: `data-model/furiosa-data-model.yml`
+- Conformance: `conformance/furiosa-conformance.yml`
+- Lifecycle: `lifecycle/furiosa-lifecycle.yml`
+- Changelog: `changelog/furiosa-changelog.yml`
+- Packages: `packages/furiosa-packages.yml`
+- CLI: `cli/furiosa-cli.yml`
+- Sandbox: `sandbox/furiosa-sandbox.yml`
+- Plans: `plans/furiosa-plans-pricing.yml`
+- Rate limits: `rate-limits/furiosa-rate-limits.yml`
+- Well-known probe (all 404): `well-known/furiosa-well-known.yml`
+- MCP candidate (no server exists): `mcp/furiosa-mcp.yml`
+- Agent Skills: `skills/_index.yml`
+
+## Optional
+
+- [Developer Center](https://developer.furiosa.ai/latest/en/): version-pinned Sphinx documentation.
+- [Roadmap](https://developer.furiosa.ai/latest/en/overview/roadmap.html): quarter-bucketed, forward-looking.
+- [Release notes](https://developer.furiosa.ai/latest/en/whatsnew/index.html): calendar train, YYYY.MINOR.PATCH, with a Breaking Changes & Deprecations section per release.
+- [GitHub organization](https://github.com/furiosa-ai): 158 public repositories.
+- [Forums](https://forums.furiosa.ai/) and [support portal](https://furiosa-ai.atlassian.net/servicedesk/customer/portals).
+- [Blog](https://furiosa.ai/blog)
+- [RNGD product page](https://furiosa.ai/rngd) and [specifications](https://furiosa.ai/renegade-spec).

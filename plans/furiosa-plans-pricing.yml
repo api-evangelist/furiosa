@@ -1,0 +1,34 @@
+generated: '2026-08-16'
+method: searched
+source: https://furiosa.ai/ (site link inventory), https://lp.furiosa.ai/furiosa-access-program
+plan_count: 0
+pricing_published: false
+model: contact-sales
+note: >-
+  FuriosaAI publishes no pricing of any kind. https://furiosa.ai/pricing returns 404 and there is
+  no pricing link in the site navigation - the site's commercial paths are /contact and the
+  Furiosa Access Program landing page. That is the expected shape for a data-center silicon
+  vendor selling RNGD cards and NXT server systems through direct sales and partners rather than
+  a metered API, and the software layer (furiosa-llm, furiosa-smi, the Kubernetes toolkit,
+  the APT/RPM repository, the container images) is distributed at no charge and without a
+  signup gate. There is no usage-based or per-token price to record because the customer runs
+  the inference on hardware they bought.
+plans: []
+evidence:
+  - url: https://furiosa.ai/pricing
+    status: 404
+  - url: https://lp.furiosa.ai/furiosa-access-program
+    status: 200
+    note: Gated lead-capture landing page for early access to RNGD - a sales funnel, not a plan.
+  - url: https://furiosa.ai/contact
+    status: 200
+free_access:
+  - what: APT / RPM package repository (driver, firmware, furiosa-smi, furiosa-cdi, metrics exporter)
+    url: http://asia-northeast3-apt.pkg.dev/projects/furiosa-ai
+    gate: none
+  - what: PyPI wheels (furiosa-llm, furiosa-smi-py, furiosa-native-runtime)
+    gate: none
+  - what: Container images (Docker Hub furiosaai/*, quay.io/furiosaai/* UBI variants)
+    gate: none
+  - what: Pre-compiled model artifacts (FXB) on the Hugging Face Hub
+    gate: Hugging Face access token

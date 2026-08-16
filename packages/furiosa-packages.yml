@@ -1,0 +1,142 @@
+generated: '2026-08-16'
+method: searched
+source: https://pypi.org/user/furiosa/ + https://proxy.golang.org + https://hub.docker.com/u/furiosaai + https://developer.furiosa.ai/latest/en/get_started/prerequisites.html
+note: >-
+  FuriosaAI ships its client/runtime surface as Python wheels (PyPI), Go modules
+  (proxy.golang.org), OCI images (Docker Hub) and native OS packages served from
+  its own APT/RPM repositories at asia-northeast3-apt.pkg.dev / asia-northeast3-yum.pkg.dev.
+  Versions and dates below were read from each registry's metadata endpoint on 2026-08-16.
+  The split is important: the CURRENT generation (furiosa-llm, furiosa-smi-py,
+  furiosa-native-runtime) is on a 2026.x calendar train and actively released, while the
+  LEGACY furiosa-sdk 0.10.x family (Warboy-era: furiosa-sdk, furiosa-runtime, furiosa-quantizer,
+  furiosa-tools, furiosa-device, furiosa-server) has not published since 2024-05-29.
+packages:
+  - name: furiosa-llm
+    language: python
+    registry: pypi
+    url: https://pypi.org/project/furiosa-llm/
+    version: 2026.3.0
+    published: '2026-06-30'
+    official: true
+    note: Current-generation LLM serving/inference library; provides the `furiosa-llm serve` OpenAI-compatible server.
+  - name: furiosa-native-runtime
+    language: python
+    registry: pypi
+    url: https://pypi.org/project/furiosa-native-runtime/
+    version: 2026.2.1
+    published: '2026-05-29'
+    official: true
+  - name: furiosa-smi-py
+    language: python
+    registry: pypi
+    url: https://pypi.org/project/furiosa-smi-py/
+    version: 2026.1.2
+    published: '2026-05-29'
+    official: true
+    note: Python bindings for the Furiosa System Management Interface (device telemetry/control).
+  - name: furiosa-sdk
+    language: python
+    registry: pypi
+    url: https://pypi.org/project/furiosa-sdk/
+    version: 0.10.2
+    published: '2024-05-29'
+    official: true
+    status: legacy
+    note: >-
+      Warboy-generation meta-package. Last release 2024-05-29 — more than two years before the
+      current 2026.3.0 RNGD stack. Superseded by furiosa-llm, not deprecated in writing.
+  - name: furiosa-runtime
+    language: python
+    registry: pypi
+    url: https://pypi.org/project/furiosa-runtime/
+    version: 0.10.2
+    published: '2024-05-29'
+    official: true
+    status: legacy
+  - name: furiosa-quantizer
+    language: python
+    registry: pypi
+    url: https://pypi.org/project/furiosa-quantizer/
+    version: 0.10.2
+    published: '2024-05-29'
+    official: true
+    status: legacy
+  - name: furiosa-tools
+    language: python
+    registry: pypi
+    url: https://pypi.org/project/furiosa-tools/
+    version: 0.10.2
+    published: '2024-05-29'
+    official: true
+    status: legacy
+  - name: furiosa-device
+    language: python
+    registry: pypi
+    url: https://pypi.org/project/furiosa-device/
+    version: 0.10.2
+    published: '2024-05-29'
+    official: true
+    status: legacy
+  - name: github.com/furiosa-ai/furiosa-smi-go
+    language: go
+    registry: go
+    url: https://pkg.go.dev/github.com/furiosa-ai/furiosa-smi-go
+    version: v0.6.0
+    published: '2025-12-09'
+    official: true
+    note: Go bindings for the Furiosa SMI library; consumed by the Kubernetes device plugin and metrics exporter.
+  - name: github.com/furiosa-ai/libfuriosa-kubernetes
+    language: go
+    registry: go
+    url: https://pkg.go.dev/github.com/furiosa-ai/libfuriosa-kubernetes
+    version: v0.3.2
+    published: '2025-12-23'
+    official: true
+  - name: xgrammar-rs
+    language: rust
+    registry: crates.io
+    url: https://crates.io/crates/xgrammar-rs
+    version: 0.1.33
+    published: '2026-05-11'
+    official: true
+    note: >-
+      Rust binding for XGrammar, published by FuriosaAI and used by the guided-decoding /
+      structured-output path in Furiosa-LLM.
+  - name: furiosaai/furiosa-llm
+    language: container
+    registry: docker-hub
+    url: https://hub.docker.com/r/furiosaai/furiosa-llm
+    version: 2026.3.0
+    published: '2026-06-30'
+    official: true
+    note: Official container image for the OpenAI-compatible server; `latest` tracks 2026.3.0.
+  - name: furiosa-driver-rngd
+    language: system
+    registry: apt-rpm
+    url: http://asia-northeast3-apt.pkg.dev/projects/furiosa-ai
+    version: null
+    published: null
+    official: true
+    note: >-
+      RNGD kernel driver, distributed from FuriosaAI's own APT/RPM repositories. These are
+      Google Artifact Registry package repos with no unauthenticated metadata endpoint that
+      answers a version query, so version/published are honestly null — checked, nothing to record.
+  - name: furiosa-smi
+    language: system
+    registry: apt-rpm
+    url: http://asia-northeast3-apt.pkg.dev/projects/furiosa-ai
+    version: null
+    published: null
+    official: true
+    note: >-
+      The furiosa-smi CLI plus furiosa-libsmi. Same APT/RPM distribution as the driver; no
+      queryable registry metadata endpoint.
+  - name: furiosa-libnpu-sim
+    language: system
+    registry: apt-rpm
+    url: http://asia-northeast3-apt.pkg.dev/projects/furiosa-ai
+    version: null
+    published: null
+    official: true
+    note: NPU simulator package — lets the stack run without RNGD hardware. See sandbox/furiosa-sandbox.yml.
+official_sdk_count: 12

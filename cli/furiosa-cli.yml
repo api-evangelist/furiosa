@@ -1,0 +1,91 @@
+generated: '2026-08-16'
+method: searched
+source: >-
+  https://developer.furiosa.ai/latest/en/device_management/system_management_interface/furiosa_smi_cli.html,
+  https://developer.furiosa.ai/latest/en/furiosa_llm/furiosa-llm-serve.html,
+  https://developer.furiosa.ai/latest/en/get_started/prerequisites.html
+summary: >-
+  FuriosaAI ships two first-party command-line tools plus a kubectl plugin. `furiosa-smi` is the
+  device-management CLI (the nvidia-smi analogue for RNGD) and `furiosa-llm` is the model
+  lifecycle and serving CLI. Note the asymmetry: furiosa-smi has a dedicated reference page with
+  worked output for every subcommand, while `furiosa-llm serve` is documented through prose and
+  option tables scattered across the serving, responses and tool-calling pages - there is no
+  single `furiosa-llm --help` reference in the developer center.
+clis:
+  - name: furiosa-smi
+    description: Device management and telemetry for FuriosaAI NPUs.
+    docs: https://developer.furiosa.ai/latest/en/device_management/system_management_interface/furiosa_smi_cli.html
+    install:
+      - method: apt
+        command: sudo apt install -y furiosa-smi
+        note: Installs furiosa-libsmi and furiosa-smi. Requires the FuriosaAI APT repo (asia-northeast3-apt.pkg.dev/projects/furiosa-ai).
+      - method: dnf
+        command: sudo dnf install furiosa-smi
+        note: Rocky Linux 10 / RHEL 10 via asia-northeast3-yum.pkg.dev/projects/furiosa-ai/el10.
+    requirements:
+      - Ubuntu 22.04 LTS / Debian Bookworm or later, or Rocky Linux 10 / RHEL 10
+      - Linux kernel 6.3 or later
+      - root privileges
+    synopsis: furiosa-smi <sub command> [option]..
+    commands:
+      - name: info
+        description: Architecture, device, firmware version, temperature, power draw and PCI BDF per NPU.
+        flags:
+          - --full
+          - --format full
+        note: --full / --format full adds UUID, serial number, core clock, governor and PCI-DEV.
+      - name: status
+        description: Per-device liveness, memory used/total, and per-core utilization (shows "-" when the core is idle/unused).
+      - name: ps
+        description: Lists the OS processes currently occupying each NPU device.
+    library:
+      name: furiosa-smi library
+      docs: https://developer.furiosa.ai/latest/en/device_management/system_management_interface/furiosa_smi_lib.html
+      bindings:
+        - python: furiosa-smi-py (PyPI)
+        - go: github.com/furiosa-ai/furiosa-smi-go
+  - name: furiosa-llm
+    description: Build, prepare and serve models on RNGD.
+    docs: https://developer.furiosa.ai/latest/en/furiosa_llm/furiosa-llm-serve.html
+    install:
+      - method: pip
+        command: pip install furiosa-llm
+      - method: docker
+        command: docker pull furiosaai/furiosa-llm:latest
+    commands:
+      - name: serve
+        synopsis: furiosa-llm serve [ARTIFACT_PATH] [options]
+        description: Start the OpenAI-compatible HTTP server hosting one model artifact.
+        flags:
+          - flag: --chat-template
+            description: Path to a Jinja2 chat template, overriding the tokenizer's built-in one.
+          - flag: --enable-auto-tool-choice
+            description: Enable automatic tool-call detection in model output.
+          - flag: --tool-call-parser
+            description: Tool-call parser to use (e.g. hermes for EXAONE-4.0).
+          - flag: --reasoning-parser
+            description: Reasoning parser to use (e.g. qwen3). --help lists supported parsers.
+          - flag: --enable-responses-api-store
+            description: Enable the in-memory Responses API store (default off).
+          - flag: --responses-api-store-max-entries
+            description: Max stored responses; default 10000, oldest evicted first.
+          - flag: --responses-api-store-ttl
+            description: TTL for stored responses in seconds; default 3600.
+        example: furiosa-llm serve furiosa-ai/Qwen3-32B-FP8 --reasoning-parser qwen3
+  - name: kubectl view-rngd
+    description: kubectl plugin for viewing RNGD device allocation across a cluster.
+    source: https://github.com/furiosa-ai/kubectl-view-rngd
+    install:
+      - method: krew
+        command: null
+        note: >-
+          Published to the krew-index (furiosa-ai maintains a krew-index fork). The developer
+          center does not document an install command, so none is asserted here.
+    status: published-undocumented
+firmware_tools:
+  - name: furiosa_rngd_updater_all
+    description: Upgrade firmware on all RNGD devices. As of SDK 2026.3.0 this must be run manually after installing the firmware image package, followed by a cold reboot.
+  - name: furiosa_rngd_updater
+    synopsis: furiosa_rngd_updater -b <BDF> -f <firmware image>
+    description: Upgrade firmware on a single device by PCI BDF.
+cli_count: 3

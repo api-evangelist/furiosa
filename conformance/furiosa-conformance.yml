@@ -1,0 +1,115 @@
+generated: '2026-08-16'
+method: searched
+source: >-
+  https://github.com/furiosa-ai/furiosa-sdk/blob/main/python/furiosa-server/README.md,
+  https://developer.furiosa.ai/latest/en/furiosa_llm/furiosa-llm-serve.html,
+  https://developer.furiosa.ai/latest/en/furiosa_llm/responses-api.html,
+  https://developer.furiosa.ai/latest/en/whatsnew/release-2026.3.0.html,
+  openapi/furiosa-predict-v2.yaml
+summary: >-
+  FuriosaAI's conformance story is unusually strong on INTEROPERABILITY standards and empty on
+  REGULATORY ones. It implements four borrowed API contracts more or less verbatim - which is
+  exactly the right posture for an inference-accelerator vendor, because it means an existing
+  OpenAI or KServe client works against RNGD unchanged. What it does not publish is any
+  certification, audit report or compliance program, so no Compliance pointer is emitted.
+conformance:
+  - id: kserve-predict-v2
+    name: KServe / KFServing Predict Protocol v2 (V2 Dataplane)
+    conforms: true
+    evidence: >-
+      The furiosa-server README states the API is "compliant with KFServing's V2 Dataplane
+      specification", and FuriosaAI publishes the protocol's OpenAPI and .proto verbatim in
+      python/furiosa-server/openapi/ and /proto/. Paths, operationIds and schemas match the
+      upstream required_api.md.
+    artifacts:
+      - openapi/furiosa-predict-v2.yaml
+      - grpc/furiosa-predict.proto
+  - id: triton-model-repository
+    name: Triton Inference Server Model Repository extension (HTTP/REST + gRPC)
+    conforms: true
+    evidence: >-
+      README names the Triton Model Repository specification; /v2/repository/index,
+      /load and /unload are implemented with the upstream request/response schemas.
+    artifacts:
+      - openapi/furiosa-model-repository-v2.yaml
+      - grpc/furiosa-model-repository.proto
+  - id: openai-api
+    name: OpenAI API compatibility (Completions, Chat Completions, Embeddings, Models)
+    conforms: partial
+    evidence: >-
+      `furiosa-llm serve` exposes /v1/completions, /v1/chat/completions, /v1/embeddings,
+      /v1/models and /v1/models/{model_id}, and the docs say every undescribed parameter
+      "inherits its behavior from the corresponding parameter in the OpenAI API".
+    deviations:
+      - n is currently limited to 1.
+      - logprobs / top_logprobs are marked experimental.
+      - The `model` field is required by clients but ignored by the server (one model per process).
+      - Adds non-OpenAI fields - reasoning, return_token_ids, artifact_id, max_prompt_len, max_context_len, runtime_config.
+  - id: openresponses
+    name: OpenResponses specification (Responses API)
+    conforms: partial
+    evidence: >-
+      "Furiosa-LLM implements the OpenResponses specification"; POST /v1/responses,
+      GET /v1/responses/{id}, POST /v1/responses/{id}/cancel.
+    deviations:
+      - Multimodal input types (input_image, input_audio, input_file) accepted but silently ignored.
+      - Built-in tools (web_search, file_search, code_interpreter, computer_use, mcp) not supported - custom function tools only.
+      - background=true accepted but has no effect.
+      - truncation="auto" accepted; only "disabled" implemented.
+      - presence_penalty and frequency_penalty accepted but not functional.
+      - Adds top_k, which is not in the specification.
+  - id: vllm-extensions
+    name: vLLM Score and Rerank API extensions
+    conforms: true
+    evidence: >-
+      /score, /v1/score, /rerank, /v1/rerank and /v2/rerank are implemented against the vLLM
+      specification, which the docs cite directly. Currently limited to Qwen3-Rerank models.
+  - id: prometheus-exposition
+    name: Prometheus text exposition on /metrics
+    conforms: true
+    evidence: >-
+      GET /metrics serves vLLM-compatible metrics plus furiosa_llm_* collectors (gauges,
+      counters and histograms with model_name/engine labels). GET-only as of 2026.3.0.
+  - id: opentelemetry
+    name: OpenTelemetry
+    conforms: true
+    evidence: Roadmap records "✅ Enhanced observability with OpenTelemetry and per-device metrics" delivered in 2026 Q1-Q2.
+  - id: json-schema
+    name: JSON Schema structured output
+    conforms: true
+    evidence: >-
+      Structured output constrains generation to a caller-supplied JSON Schema via
+      response_format / text.format type json_schema, backed by libguidance and xgrammar.
+  - id: kubernetes-dra
+    name: Kubernetes Dynamic Resource Allocation (DRA) and Device Plugin
+    conforms: true
+    evidence: >-
+      furiosa-device-plugin, furiosa-dra-driver, furiosa-feature-discovery, furiosa-npu-operator
+      and furiosa-metrics-exporter are published as multi-arch images; the NPU operator images
+      are Red Hat OpenShift-certified and UBI variants ship on quay.io.
+  - id: cdi
+    name: Container Device Interface (CDI)
+    conforms: true
+    evidence: Roadmap - "✅ Container Runtime and Container Interface Device (CDI) support" (2025 Q1-Q2); furiosa-cdi package ships in the APT/YUM trains.
+  - id: rfc9457
+    name: RFC 9457 Problem Details for HTTP APIs
+    conforms: false
+    evidence: >-
+      No application/problem+json anywhere; the KServe {"error": string} envelope is used
+      instead. See errors/furiosa-problem-types.yml.
+  - id: oauth2
+    name: OAuth 2.0
+    conforms: false
+    evidence: No authorization server, no scopes; /.well-known/oauth-authorization-server 404 on every host (well-known/furiosa-well-known.yml).
+  - id: oidc
+    name: OpenID Connect
+    conforms: false
+    evidence: /.well-known/openid-configuration 404 on every host.
+certifications: []
+certifications_note: >-
+  No SOC 2, ISO 27001, PCI DSS, HIPAA or FedRAMP claim is published anywhere on furiosa.ai or the
+  developer center, and there is no trust center. The only third-party certification FuriosaAI
+  publishes is a PRODUCT one - Red Hat OpenShift certification of the cloud-native operator images -
+  which is a platform-compatibility certification, not a security or compliance attestation, and is
+  recorded above under kubernetes-dra rather than here. NO Compliance pointer is emitted.
+conforms_count: 9

@@ -1,0 +1,55 @@
+generated: '2026-08-16'
+method: searched
+source: >-
+  https://developer.furiosa.ai/latest/en/furiosa_llm/furiosa-llm-serve.html,
+  https://developer.furiosa.ai/latest/en/overview/roadmap.html,
+  https://github.com/furiosa-ai/furiosa-sdk/blob/main/python/furiosa-server/README.md
+docs: https://developer.furiosa.ai/latest/en/furiosa_llm/furiosa-llm-serve.html
+summary: >-
+  FuriosaAI operates no hosted API, so there is no FuriosaAI-issued credential anywhere in this
+  profile. Both HTTP surfaces are software the customer runs on their own machines, and each one
+  authenticates (or does not) on the customer's terms. That is the honest shape of the auth
+  story here, and it is why no OAuth scopes artifact exists.
+surfaces:
+  - api: furiosa-llm-openai-server
+    name: Furiosa-LLM OpenAI-Compatible Server
+    schemes:
+      - type: http
+        scheme: bearer
+        name: OpenAI-style API key
+        header: 'Authorization: Bearer <key>'
+        required: false
+        issued_by: the operator of the server, not FuriosaAI
+        evidence: >-
+          The roadmap records "✅ API Key based authentication support" delivered in the
+          2025 Q3-Q4 train. Every code example in the serving docs sends
+          `api_key = os.getenv("OPENAI_API_KEY", "EMPTY")`, and the raw curl example sends no
+          Authorization header at all - i.e. the server runs unauthenticated by default and the
+          key is opt-in, set by whoever launches `furiosa-llm serve`.
+        note: >-
+          The docs do not publish the server flag that enables it or the failure status code.
+          Establishing those requires reading `furiosa-llm serve --help` on an installed build.
+    model_value_ignored: >-
+      Worth recording as an auth-adjacent quirk: the `model` field is required by OpenAI clients
+      but IGNORED by the server, because one `furiosa-llm serve` process hosts exactly one model.
+      Callers should read the real id from GET /v1/models rather than assume routing by name.
+  - api: furiosa-server-predict-v2
+    name: Furiosa Model Server (KServe v2 Predict + Triton Model Repository)
+    schemes: []
+    security_schemes_in_spec: false
+    evidence: >-
+      Neither openapi/furiosa-predict-v2.yaml nor openapi/furiosa-model-repository-v2.yaml
+      declares a `securitySchemes` block or any `security` requirement, and the furiosa-server
+      README lists "Authentication support" as an UNCHECKED roadmap item. The server is designed
+      to sit behind the customer's own ingress/mesh.
+    note: >-
+      This is a real finding, not an omission on our side: the model-repository surface exposes
+      unauthenticated load/unload of arbitrary models from the repository root, so it must never
+      be exposed outside a trusted network.
+oauth: false
+oauth_note: >-
+  No OAuth 2.0 or OpenID Connect anywhere - no authorization server, no scopes, no
+  /.well-known/oauth-authorization-server (probed 404 on all hosts, see well-known/).
+  scopes/ is therefore intentionally absent rather than empty.
+mtls: false
+scheme_count: 1

@@ -1,0 +1,55 @@
+generated: '2026-08-16'
+method: searched
+source: >-
+  https://developer.furiosa.ai/latest/en/furiosa_llm/furiosa-llm-serve.html,
+  openapi/furiosa-predict-v2.yaml, openapi/furiosa-model-repository-v2.yaml
+limit_count: 0
+published: false
+note: >-
+  No rate limits are published, and none would be meaningful: both HTTP surfaces are software the
+  customer runs on their own hardware, so there is no FuriosaAI-imposed quota, no 429, and no
+  RateLimit-* or X-RateLimit-* response header documented anywhere. The real constraint is
+  physical - NPU count, KV-cache capacity and the server's queue depth - and FuriosaAI exposes it
+  as TELEMETRY rather than as a protocol signal. That distinction matters for an agent: it cannot
+  learn it is being throttled from its own response, it has to scrape /metrics.
+headers: []
+status_on_exhaustion: null
+limits: []
+backpressure_signals:
+  endpoint: GET /metrics
+  format: Prometheus text exposition (vLLM-compatible plus furiosa_llm_* collectors)
+  note: As of SDK 2026.3.0 /metrics is GET-only; POST returns 405.
+  metrics:
+    - name: furiosa_llm_num_requests_running
+      type: gauge
+      labels: [model_name, engine]
+      description: Requests currently running on RNGD.
+    - name: furiosa_llm_num_requests_waiting
+      type: gauge
+      labels: [model_name, engine]
+      description: Requests queued and waiting - the closest thing to a throttling signal.
+    - name: furiosa_llm_kv_cache_usage_percent
+      type: gauge
+      labels: [model_name, engine]
+      description: KV-cache utilization; 1 means 100 percent. Saturation here is what stalls new requests.
+    - name: furiosa_llm_time_to_first_token_seconds
+      type: histogram
+      labels: [model_name, engine]
+    - name: furiosa_llm_inter_token_latency_seconds
+      type: histogram
+      labels: [model_name, engine]
+    - name: furiosa_llm_e2e_request_latency_seconds
+      type: histogram
+      labels: [model_name, engine]
+    - name: furiosa_llm_request_success_total
+      type: counter
+      labels: [model_name, engine, finished_reason]
+request_shaping:
+  - constraint: n is currently limited to 1 on /v1/completions and /v1/chat/completions.
+  - constraint: use_beam_search cannot be combined with stream.
+  - constraint: >-
+      max_completion_tokens plus prompt length must not exceed the model's maximum context
+      length; GET /v1/models reports max_prompt_len and max_context_len per artifact.
+  - constraint: >-
+      Responses API store is bounded - default 10000 entries with a 3600 second TTL, oldest
+      evicted first, and everything is lost on server restart.

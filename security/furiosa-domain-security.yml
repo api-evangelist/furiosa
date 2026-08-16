@@ -1,0 +1,22 @@
+generated: '2026-08-16'
+method: probed
+source: live DNS/TLS/HTTP probes of apis.yml + OpenAPI hosts
+hosts:
+- host: furiosa.ai
+  https: true
+  tls_version: TLSv1.3
+  cert_expires: Sep 23 01:42:15 2026 GMT
+  hsts: true
+  hsts_max_age: 31536000
+- host: developer.furiosa.ai
+  https: true
+  tls_version: TLSv1.3
+  cert_expires: Oct 10 01:42:48 2026 GMT
+  hsts: false
+domains:
+- domain: furiosa.ai
+  dnssec: false
+  caa: []
+  spf: false
+  dmarc: true
+  dmarc_policy: none

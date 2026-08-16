@@ -1,0 +1,71 @@
+overlay: 1.0.0
+info:
+  title: API Evangelist enhancements for the Furiosa Model Server Predict API
+  version: 1.0.0
+x-generated: '2026-08-16'
+x-method: generated
+x-source: openapi/furiosa-predict-v2.yaml
+x-note: >-
+  Non-destructive enhancements to the spec FuriosaAI publishes at
+  https://github.com/furiosa-ai/furiosa-sdk/blob/main/python/furiosa-server/openapi/predict.yaml.
+  The original is saved verbatim and never mutated. Three things this overlay records that the
+  original leaves implicit - who serves it (the spec's servers[] is empty and info.title is the
+  generic upstream "Predict API"), what the health endpoints' 400 actually means, and the fact
+  that the path templates use ${MODEL_NAME} shell-style syntax rather than OpenAPI {modelName}.
+extends: openapi/furiosa-predict-v2.yaml
+actions:
+  - target: $.info
+    update:
+      x-provider: FuriosaAI, Inc.
+      x-provider-url: https://furiosa.ai/
+      x-product: Furiosa Model Server (furiosa-server)
+      x-spec-origin: >-
+        Vendored by FuriosaAI into its own first-party repository (furiosa-ai/furiosa-sdk,
+        python/furiosa-server/openapi/predict.yaml) as the published contract of Furiosa Model
+        Server. info.title and info.description name the upstream KServe/KFServing V2 Dataplane
+        rather than FuriosaAI because the server implements that protocol verbatim; the
+        furiosa-server README states the compliance claim directly.
+      x-deployment: customer-hosted
+  - target: $.servers
+    update:
+      - url: http://{host}:{port}
+        description: >-
+          Customer-hosted Furiosa Model Server. The original spec ships an empty servers[]
+          because there is no FuriosaAI-operated instance. Defaults from
+          furiosa/server/settings.py - REST 8080, gRPC 8081, bind 0.0.0.0.
+        variables:
+          host:
+            default: localhost
+          port:
+            default: '8080'
+            enum:
+              - '8080'
+  - target: $.paths['/v2/health/live'].get
+    update:
+      x-response-semantics: >-
+        Returns a bare 200 for live and 400 for not-live with no body (furiosa-server's
+        BooleanResponse). A 400 here is a state signal, not a malformed-request signal.
+      x-idempotent: true
+  - target: $.paths['/v2/health/ready'].get
+    update:
+      x-response-semantics: Bare 200 ready / 400 not ready, no body.
+      x-idempotent: true
+  - target: $.paths['/v2/'].get
+    update:
+      x-purpose: Server metadata - name, version and supported protocol extensions.
+      x-idempotent: true
+  - target: $.paths['/v2/models/${MODEL_NAME}/versions/${MODEL_VERSION}/infer'].post
+    update:
+      x-idempotent: false
+      x-consequence: compute
+      x-validation-note: >-
+        Input tensor name, shape and datatype must match GET
+        /v2/models/{name}/versions/{version} exactly. The schema types shape as a free integer
+        array, so a mismatch surfaces at runtime as a 400 inference_error_response rather than
+        as a schema validation failure.
+  - target: $.components.schemas.tensor_data
+    update:
+      x-note: >-
+        Flattened row-major tensor payload. Element type is governed by the sibling `datatype`
+        field, not by the schema, so a generated client cannot type this without reading
+        model metadata first.

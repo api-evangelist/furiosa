@@ -1,0 +1,52 @@
+generated: '2026-08-16'
+method: searched
+source: >-
+  https://github.com/furiosa-ai/furiosa-sdk/blob/main/python/furiosa-server/README.md,
+  https://developer.furiosa.ai/latest/en/get_started/prerequisites.html,
+  https://developer.furiosa.ai/latest/en/furiosa_llm/furiosa-llm-serve.html
+summary: >-
+  There is no hosted sandbox, no test-mode key and no trial console - there could not be, since
+  FuriosaAI operates no API. What it ships instead is the hardware-vendor equivalent: an NPU
+  SIMULATOR package that lets the stack run end to end without an RNGD card, plus small sample
+  models and inputs committed to the SDK repo. That is the honest analogue of test cards here.
+hosted_sandbox: false
+test_mode_keys: false
+simulator:
+  package: furiosa-libnpu-sim
+  distribution: FuriosaAI APT / RPM repository
+  install: sudo apt install furiosa-libnpu-sim
+  hardware_alternative: furiosa-libnpu-xrt
+  evidence: >-
+    The furiosa-server README's development setup reads
+    "sudo apt install furiosa-libnpu-sim # or furiosa-libnpu-xrt if you have Furiosa H/W" -
+    i.e. the simulator is the documented path for developing without a device.
+  scope: >-
+    Gen-1 (Warboy) era package documented in the furiosa-sdk repo. The current RNGD developer
+    center documents no simulator equivalent for furiosa-llm; the 2026.x getting-started path
+    assumes an installed RNGD device verified with `lspci -nn | grep FuriosaAI`.
+sample_fixtures:
+  - path: python/furiosa-server/samples/data/MNISTnet_uint8_quant.tflite
+    description: Quantized MNIST TFLite model for smoke-testing the model server.
+  - path: python/furiosa-server/samples/data/MNIST_inception_v3_quant.tflite
+    description: Quantized Inception v3 model.
+  - path: python/furiosa-server/samples/data/SSD512_MOBILENET_V2_BDD_int_without_reshape.tflite
+    description: Quantized SSD512 MobileNetV2 detection model.
+  - path: python/furiosa-server/samples/mnist_input_sample_01.json
+    description: A ready-made KServe v2 inference_request body for the MNIST model.
+sample_fixtures_repo: https://github.com/furiosa-ai/furiosa-sdk
+smallest_reproducible_model:
+  model: furiosa-ai/Qwen2.5-0.5B-Instruct
+  source: >-
+    Used as the model argument in the official container quick-start
+    (`docker run ... furiosaai/furiosa-llm:latest serve furiosa-ai/Qwen2.5-0.5B-Instruct`).
+    The smallest published artifact for verifying a serving install.
+  requires: A Hugging Face access token (HF_TOKEN) and an RNGD device (--device /dev/rngd).
+placeholder_values:
+  - value: EMPTY
+    where: the `model` field and OPENAI_API_KEY in every serving example
+    note: >-
+      Published verbatim by FuriosaAI, and meaningful rather than decorative - the server ignores
+      the model value (one model per process) and runs without an API key by default.
+test_clocks: false
+webhook_replay: false
+cookbook: https://github.com/furiosa-ai/furiosa-apps
