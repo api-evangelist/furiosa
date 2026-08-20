@@ -20,6 +20,19 @@ modified: '2026-08-16'
 image: https://furiosa.ai/favicon.ico
 tags:
 - Artificial Intelligence
+- Machine-Learning
+- Inference
+- Semiconductors
+- NPU
+- Hardware
+- LLM
+- Model Serving
+- Kubernetes
+- Developer Tools
+- Compute
+- Infrastructure
+tags_raw:
+- Artificial Intelligence
 - Machine Learning
 - Inference
 - Semiconductors
@@ -46,6 +59,10 @@ apis:
   humanURL: https://developer.furiosa.ai/latest/en/furiosa_llm/furiosa-llm-serve.html
   baseURL: http://{furiosa_llm_host}:8000/v1
   tags:
+  - LLM
+  - Inference
+  - OpenAI-Compatible
+  tags_raw:
   - LLM
   - Inference
   - OpenAI Compatible
