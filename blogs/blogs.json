@@ -1,0 +1,14 @@
+{
+  "repo": "furiosa",
+  "feeds": [
+    {
+      "source": "https://forums.furiosa.ai/",
+      "feed_url": "https://forums.furiosa.ai/posts.rss",
+      "title": "",
+      "saved": 2,
+      "method": "discovered"
+    }
+  ],
+  "post_count": 2,
+  "fetched": "2026-08-22T20:20:02Z"
+}
