@@ -48,13 +48,12 @@ apis:
 - aid: furiosa-llm-openai-server
   name: Furiosa-LLM OpenAI-Compatible Server
   description: >-
-    The HTTP server started by `furiosa-llm serve <ARTIFACT_PATH>`. It hosts a single model on
-    RNGD NPUs and exposes an OpenAI-compatible surface - /v1/completions, /v1/chat/completions,
-    /v1/responses (OpenResponses), /v1/embeddings, /v1/models, /v1/models/{model_id} - plus the
-    vLLM-originated /score and /rerank pooling endpoints, a tokenizer API (/tokenize,
-    /detokenize, /tokenizer_info), GET /version and a Prometheus GET /metrics endpoint. It is
-    customer-hosted software, so the base URL below is templated on the operator's own host;
-    the documented default is http://localhost:8000/v1. FuriosaAI publishes no OpenAPI for this
+    The HTTP server started by `furiosa-llm serve <ARTIFACT_PATH>`. It hosts a single model on RNGD NPUs
+    and exposes an OpenAI-compatible surface - /v1/completions, /v1/chat/completions, /v1/responses (OpenResponses),
+    /v1/embeddings, /v1/models, /v1/models/{model_id} - plus the vLLM-originated /score and /rerank pooling
+    endpoints, a tokenizer API (/tokenize, /detokenize, /tokenizer_info), GET /version and a Prometheus
+    GET /metrics endpoint. It is customer-hosted software, so the base URL below is templated on the operator's
+    own host; the documented default is http://localhost:8000/v1. FuriosaAI publishes no OpenAPI for this
     surface - the parameter tables in the serving docs are the contract.
   humanURL: https://developer.furiosa.ai/latest/en/furiosa_llm/furiosa-llm-serve.html
   baseURL: http://{furiosa_llm_host}:8000/v1
@@ -77,59 +76,96 @@ apis:
     url: conventions/furiosa-conventions.yml
   - type: RateLimits
     url: rate-limits/furiosa-rate-limits.yml
-- aid: furiosa-server-predict-v2
-  name: Furiosa Model Server - Predict API (KServe v2)
-  description: >-
-    The REST and gRPC inference surface of Furiosa Model Server, serving TFLite/ONNX models on
-    FuriosaAI NPUs. Implements the KServe/KFServing V2 Dataplane - server liveness and readiness,
-    server and model metadata, model readiness, and inference - at /v2/*. Customer-hosted;
-    the REST server defaults to port 8080 and the gRPC server to 8081.
-  humanURL: https://github.com/furiosa-ai/furiosa-sdk/tree/main/python/furiosa-server
-  baseURL: http://{furiosa_server_host}:8080
+- aid: furiosa:furiosa-health-api
+  name: FuriosaAI Health API
+  description: The Health API from FuriosaAI — 2 operation(s) for health.
+  humanURL: https://developer.furiosa.ai/latest/en/furiosa_llm/furiosa-llm-serve.html
+  baseURL: http://{furiosa_llm_host}:8000/v1
   tags:
-  - Inference
-  - Model Serving
-  - KServe
+  - Health
   properties:
   - type: OpenAPI
-    url: openapi/furiosa-predict-v2.yaml
+    url: openapi/furiosa-health-api-openapi.yml
   - type: Protobuf
     url: grpc/furiosa-predict.proto
-  - type: Overlay
-    url: overlays/furiosa-predict-v2-overlay.yaml
   - type: ErrorCatalog
     url: errors/furiosa-problem-types.yml
   - type: DataModel
     url: data-model/furiosa-data-model.yml
   - type: SourceCode
     url: https://github.com/furiosa-ai/furiosa-sdk
-- aid: furiosa-model-repository-v2
-  name: Furiosa Model Server - Model Repository API
-  description: >-
-    The model-management surface of Furiosa Model Server, implementing the Triton Inference
-    Server Model Repository extension - POST /v2/repository/index to list the repository and
-    each model's readiness state, and POST /v2/repository/models/{name}/load and /unload to
-    bring models in and out of the server. Available over both REST and gRPC. No authentication
-    is declared, so this surface must stay on a trusted network.
-  humanURL: https://github.com/furiosa-ai/furiosa-sdk/tree/main/python/furiosa-server
-  baseURL: http://{furiosa_server_host}:8080
-  tags:
-  - Model Serving
-  - Model Management
-  - Triton
-  properties:
-  - type: OpenAPI
-    url: openapi/furiosa-model-repository-v2.yaml
   - type: Protobuf
     url: grpc/furiosa-model-repository.proto
-  - type: Overlay
-    url: overlays/furiosa-model-repository-v2-overlay.yaml
+- aid: furiosa:furiosa-models-api
+  name: FuriosaAI Models API
+  description: The Models API from FuriosaAI — 3 operation(s) for models.
+  humanURL: https://developer.furiosa.ai/latest/en/furiosa_llm/furiosa-llm-serve.html
+  baseURL: http://{furiosa_llm_host}:8000/v1
+  tags:
+  - Models
+  properties:
+  - type: OpenAPI
+    url: openapi/furiosa-models-api-openapi.yml
+  - type: Protobuf
+    url: grpc/furiosa-predict.proto
+  - type: ErrorCatalog
+    url: errors/furiosa-problem-types.yml
+  - type: DataModel
+    url: data-model/furiosa-data-model.yml
+  - type: SourceCode
+    url: https://github.com/furiosa-ai/furiosa-sdk
+  - type: Protobuf
+    url: grpc/furiosa-model-repository.proto
+- aid: furiosa:furiosa-predict-api-api
+  name: FuriosaAI Predict API
+  description: The Predict API API from FuriosaAI — 1 operation(s) for predict api.
+  humanURL: https://developer.furiosa.ai/latest/en/furiosa_llm/furiosa-llm-serve.html
+  baseURL: http://{furiosa_llm_host}:8000/v1
+  tags:
+  - Predict API
+  properties:
+  - type: OpenAPI
+    url: openapi/furiosa-predict-api-api-openapi.yml
+  - type: Protobuf
+    url: grpc/furiosa-predict.proto
+  - type: ErrorCatalog
+    url: errors/furiosa-problem-types.yml
+  - type: DataModel
+    url: data-model/furiosa-data-model.yml
+  - type: SourceCode
+    url: https://github.com/furiosa-ai/furiosa-sdk
+  - type: Protobuf
+    url: grpc/furiosa-model-repository.proto
+- aid: furiosa:furiosa-repository-api
+  name: FuriosaAI Repository API
+  description: The Repository API from FuriosaAI — 3 operation(s) for repository.
+  humanURL: https://developer.furiosa.ai/latest/en/furiosa_llm/furiosa-llm-serve.html
+  baseURL: http://{furiosa_llm_host}:8000/v1
+  tags:
+  - Repository
+  properties:
+  - type: OpenAPI
+    url: openapi/furiosa-repository-api-openapi.yml
+  - type: Protobuf
+    url: grpc/furiosa-predict.proto
+  - type: ErrorCatalog
+    url: errors/furiosa-problem-types.yml
+  - type: DataModel
+    url: data-model/furiosa-data-model.yml
+  - type: SourceCode
+    url: https://github.com/furiosa-ai/furiosa-sdk
+  - type: Protobuf
+    url: grpc/furiosa-model-repository.proto
 maintainers:
 - FN: Kin Lane
   email: kin@apievangelist.com
 - FN: APIs.json
   email: info@apis.io
 common:
+- type: Overlay
+  url: overlays/furiosa-predict-v2-overlay.yaml
+- type: Overlay
+  url: overlays/furiosa-model-repository-v2-overlay.yaml
 - type: Website
   url: https://furiosa.ai/
 - type: DeveloperPortal
