@@ -1,0 +1,59 @@
+openapi: 3.2.0
+info:
+  title: Predict API
+  version: '2.0'
+  description: https://github.com/kubeflow/kfserving/blob/master/docs/predict-api/v2/required_api.md
+  license:
+    name: Apache 2.0
+servers: []
+tags:
+- name: Predict API
+paths:
+  /v2/:
+    get:
+      summary: Server Metadata
+      tags:
+      - Predict API
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/metadata_server_response'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/metadata_server_error_response'
+      operationId: get-v2
+      description: The server metadata endpoint provides information about the server. A server metadata request is made with an HTTP GET to a server metadata endpoint. In the corresponding response the HTTP body contains the [Server Metadata Response JSON Object](#server-metadata-response-json-object) or the [Server Metadata Response JSON Error Object](#server-metadata-response-json-error-object).
+components:
+  schemas:
+    metadata_server_response:
+      title: metadata_server_response
+      type: object
+      description: ''
+      x-examples: {}
+      properties:
+        name:
+          type: string
+        version:
+          type: string
+        extensions:
+          type: array
+          items:
+            type: string
+      required:
+      - name
+      - version
+      - extensions
+    metadata_server_error_response:
+      title: metadata_server_error_response
+      type: object
+      properties:
+        error:
+          type: string
+      required:
+      - error

@@ -1,0 +1,31 @@
+openapi: 3.2.0
+info:
+  title: Predict Health API
+  version: '2.0'
+  description: https://github.com/kubeflow/kfserving/blob/master/docs/predict-api/v2/required_api.md
+  license:
+    name: Apache 2.0
+servers: []
+tags:
+- name: Health
+paths:
+  /v2/health/live:
+    get:
+      summary: Server Live
+      responses:
+        '200':
+          description: OK
+      operationId: get-v2-health-live
+      description: The “server live” API indicates if the inference server is able to receive and respond to metadata and inference requests. The “server live” API can be used directly to implement the Kubernetes livenessProbe.
+      tags:
+      - Health
+  /v2/health/ready:
+    get:
+      summary: Server Ready
+      tags:
+      - Health
+      responses:
+        '200':
+          description: OK
+      operationId: get-v2-health-ready
+      description: The “server ready” health API indicates if all the models are ready for inferencing. The “server ready” health API can be used directly to implement the Kubernetes readinessProbe.
