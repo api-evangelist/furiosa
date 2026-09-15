@@ -1,16 +1,14 @@
 aid: furiosa
 name: FuriosaAI
-description: >-
-  FuriosaAI is a South Korean semiconductor company that designs data-center AI inference chips
-  and the software stack that runs on them. Its second-generation NPU, RNGD, implements a Tensor
-  Contraction Processor architecture on TSMC 5nm and targets LLM, multi-modal and vision
-  inference. The developer surface is software you run yourself rather than a hosted API:
-  Furiosa-LLM ships an OpenAI-compatible server exposing chat, completions, responses,
-  embeddings, score, rerank, models, tokenizer and Prometheus metrics endpoints, and the earlier
-  Furiosa Model Server implements the KServe v2 Predict Protocol and the Triton Model Repository
-  extension over REST and gRPC. Around that sit Python, Go and Rust packages, a furiosa-smi device
-  CLI, container images, an APT/RPM package repository, and a Kubernetes cloud-native toolkit
-  (device plugin, DRA driver, feature discovery, metrics exporter, NPU operator).
+description: 'FuriosaAI is a South Korean semiconductor company that designs data-center AI inference
+  chips and the software stack that runs on them. Its second-generation NPU, RNGD, implements a Tensor
+  Contraction Processor architecture on TSMC 5nm and targets LLM, multi-modal and vision inference. The
+  developer surface is software you run yourself rather than a hosted API: Furiosa-LLM ships an OpenAI-compatible
+  server exposing chat, completions, responses, embeddings, score, rerank, models, tokenizer and Prometheus
+  metrics endpoints, and the earlier Furiosa Model Server implements the KServe v2 Predict Protocol and
+  the Triton Model Repository extension over REST and gRPC. Around that sit Python, Go and Rust packages,
+  a furiosa-smi device CLI, container images, an APT/RPM package repository, and a Kubernetes cloud-native
+  toolkit (device plugin, DRA driver, feature discovery, metrics exporter, NPU operator).'
 url: https://raw.githubusercontent.com/api-evangelist/furiosa/refs/heads/main/apis.yml
 x-type: company
 x-source: harvest:secondary-market
@@ -74,16 +72,15 @@ tags_raw:
 - Compute
 - Infrastructure
 apis:
-- aid: furiosa-llm-openai-server
+- aid: furiosa:furiosa-llm-openai-server
   name: Furiosa-LLM OpenAI-Compatible Server
-  description: >-
-    The HTTP server started by `furiosa-llm serve <ARTIFACT_PATH>`. It hosts a single model on RNGD NPUs
-    and exposes an OpenAI-compatible surface - /v1/completions, /v1/chat/completions, /v1/responses (OpenResponses),
-    /v1/embeddings, /v1/models, /v1/models/{model_id} - plus the vLLM-originated /score and /rerank pooling
-    endpoints, a tokenizer API (/tokenize, /detokenize, /tokenizer_info), GET /version and a Prometheus
-    GET /metrics endpoint. It is customer-hosted software, so the base URL below is templated on the operator's
-    own host; the documented default is http://localhost:8000/v1. FuriosaAI publishes no OpenAPI for this
-    surface - the parameter tables in the serving docs are the contract.
+  description: The HTTP server started by `furiosa-llm serve <ARTIFACT_PATH>`. It hosts a single model
+    on RNGD NPUs and exposes an OpenAI-compatible surface - /v1/completions, /v1/chat/completions, /v1/responses
+    (OpenResponses), /v1/embeddings, /v1/models, /v1/models/{model_id} - plus the vLLM-originated /score
+    and /rerank pooling endpoints, a tokenizer API (/tokenize, /detokenize, /tokenizer_info), GET /version
+    and a Prometheus GET /metrics endpoint. It is customer-hosted software, so the base URL below is templated
+    on the operator's own host; the documented default is http://localhost:8000/v1. FuriosaAI publishes
+    no OpenAPI for this surface - the parameter tables in the serving docs are the contract.
   humanURL: https://developer.furiosa.ai/latest/en/furiosa_llm/furiosa-llm-serve.html
   baseURL: http://{furiosa_llm_host}:8000/v1
   tags:
@@ -265,32 +262,25 @@ x-enrichment:
   status: enriched
   artifacts_added: 26
   pass: local-v1
-x-base-url-note: >-
-  All three baseURL values are TEMPLATED on purpose, not missing. FuriosaAI operates no hosted
-  API; both HTTP surfaces are servers the customer starts on their own machine. The published
-  defaults are http://localhost:8000/v1 for `furiosa-llm serve` and ports 8080 (REST) / 8081
-  (gRPC) for furiosa-server. repair-api-bases.py reports `no-usable-base` for this repo, which
-  is the correct and expected reading of a self-hosted product rather than a defect to repair.
+x-base-url-note: All three baseURL values are TEMPLATED on purpose, not missing. FuriosaAI operates no
+  hosted API; both HTTP surfaces are servers the customer starts on their own machine. The published defaults
+  are http://localhost:8000/v1 for `furiosa-llm serve` and ports 8080 (REST) / 8081 (gRPC) for furiosa-server.
+  repair-api-bases.py reports `no-usable-base` for this repo, which is the correct and expected reading
+  of a self-hosted product rather than a defect to repair.
 x-contract-discovery:
   date: '2026-08-16'
-  openapi_on_api_hosts: >-
-    /openapi.json, /openapi.yaml, /swagger.json and /api-docs all returned 404 on furiosa.ai and
-    developer.furiosa.ai; api.furiosa.ai and docs.furiosa.ai do not resolve. The two OpenAPI
-    documents in this repo were found instead in FuriosaAI's own GitHub repository at
-    furiosa-ai/furiosa-sdk/python/furiosa-server/openapi/.
-  ownership_note: >-
-    Ownership check on those two specs. Their info.title reads "Predict API" and "Model
-    Repository" and info.description points at kubeflow/kfserving and triton-inference-server
-    rather than at FuriosaAI, and servers[] is empty. They are nonetheless FuriosaAI's published
-    contract: the furiosa-server README in the same first-party repository states the server is
-    "compliant with KFServing's V2 Dataplane specification and Triton's Model Repository
-    specification" and lists "OpenAPI specification support" as a shipped feature, so the specs
-    describe FuriosaAI's own product implementing a borrowed protocol verbatim - the same reason
-    the .proto files carry upstream provenance headers.
+  openapi_on_api_hosts: /openapi.json, /openapi.yaml, /swagger.json and /api-docs all returned 404 on
+    furiosa.ai and developer.furiosa.ai; api.furiosa.ai and docs.furiosa.ai do not resolve. The two OpenAPI
+    documents in this repo were found instead in FuriosaAI's own GitHub repository at furiosa-ai/furiosa-sdk/python/furiosa-server/openapi/.
+  ownership_note: 'Ownership check on those two specs. Their info.title reads "Predict API" and "Model
+    Repository" and info.description points at kubeflow/kfserving and triton-inference-server rather than
+    at FuriosaAI, and servers[] is empty. They are nonetheless FuriosaAI''s published contract: the furiosa-server
+    README in the same first-party repository states the server is "compliant with KFServing''s V2 Dataplane
+    specification and Triton''s Model Repository specification" and lists "OpenAPI specification support"
+    as a shipped feature, so the specs describe FuriosaAI''s own product implementing a borrowed protocol
+    verbatim - the same reason the .proto files carry upstream provenance headers.'
   graphql: No GraphQL surface exists or is documented.
-  mcp: >-
-    No MCP server, hosted or stdio, in 158 public repos or any registry. The developer center's
-    only MCP mention is negative - the Responses API page states mcp built-in tools are not
-    supported.
+  mcp: No MCP server, hosted or stdio, in 158 public repos or any registry. The developer center's only
+    MCP mention is negative - the Responses API page states mcp built-in tools are not supported.
   a2a: /.well-known/agent-card.json and /.well-known/agent.json returned 404 on all three hosts.
   llms_txt: /llms.txt returned 404 on furiosa.ai and developer.furiosa.ai.
