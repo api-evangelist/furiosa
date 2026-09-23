@@ -28,7 +28,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/metadata_server_error_response'
       operationId: get-v2
-      description: The server metadata endpoint provides information about the server. A server metadata request is made with an HTTP GET to a server metadata endpoint. In the corresponding response the HTTP body contains the [Server Metadata Response JSON Object](#server-metadata-response-json-object) or the [Server Metadata Response JSON Error Object](#server-metadata-response-json-error-object).
+      description: The server metadata endpoint provides information about the server. A server metadata request is made with an HTTP GET to a server metadata endpoint. In the corresponding response the HTTP body contains the Server Metadata Response JSON Object or the Server Metadata Response JSON Error Object.
 components:
   schemas:
     metadata_server_response:

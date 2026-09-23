@@ -1,0 +1,41 @@
+{
+  "provider": "furiosa",
+  "sources": [
+    "_original/furiosa-model-repository-v2.yaml",
+    "_original/furiosa-predict-v2.yaml"
+  ],
+  "outputs": [
+    "furiosa-repository-api-openapi.yml",
+    "furiosa-health-api-openapi.yml",
+    "furiosa-models-api-openapi.yml",
+    "furiosa-predict-api-api-openapi.yml"
+  ],
+  "archived": [],
+  "errors": [],
+  "warnings": [],
+  "notes": [
+    "sourced from openapi/_original/ (2 archived document(s)); previously refined output at the top level was skipped rather than re-split",
+    "furiosa-model-repository-v2.yaml: upgraded openapi 3.0.0 -> OpenAPI 3.2.0",
+    "furiosa-model-repository-v2.yaml: tagged paths POST /v2/repository/index -> Repository",
+    "furiosa-model-repository-v2.yaml: tagged paths POST /v2/repository/models/${MODEL_NAME}/load -> Repository",
+    "furiosa-model-repository-v2.yaml: tagged paths POST /v2/repository/models/${MODEL_NAME}/unload -> Repository",
+    "furiosa-model-repository-v2.yaml: declared missing tag: Repository",
+    "furiosa-predict-v2.yaml: upgraded openapi 3.0.0 -> OpenAPI 3.2.0",
+    "furiosa-predict-v2.yaml: tagged paths GET /v2/health/live -> Health",
+    "furiosa-predict-v2.yaml: tagged paths GET /v2/health/ready -> Health",
+    "furiosa-predict-v2.yaml: tagged paths GET /v2/models/${MODEL_NAME}/versions/${MODEL_VERSION}/ready -> Models",
+    "furiosa-predict-v2.yaml: tagged paths GET /v2/ -> Predict API",
+    "furiosa-predict-v2.yaml: tagged paths GET /v2/models/${MODEL_NAME}/versions/${MODEL_VERSION} -> Models",
+    "furiosa-predict-v2.yaml: tagged paths POST /v2/models/${MODEL_NAME}/versions/${MODEL_VERSION}/infer -> Models",
+    "furiosa-predict-v2.yaml: declared missing tag: Health",
+    "furiosa-predict-v2.yaml: declared missing tag: Models",
+    "furiosa-predict-v2.yaml: declared missing tag: Predict API",
+    "apis.yml register: already-registered"
+  ],
+  "skipped": [
+    "furiosa-health-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "furiosa-models-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "furiosa-predict-api-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "furiosa-repository-api-openapi.yml: previously refined output, superseded by openapi/_original/"
+  ]
+}
