@@ -93,11 +93,21 @@ paths:
       - Models
 components:
   schemas:
+    tensor_data:
+      title: tensor_data
     inference_error_response:
       title: inference_error_response
       type: object
       properties:
         error:
+          type: string
+    parameters:
+      type: object
+      title: parameters
+      x-examples: {}
+      additionalProperties: true
+      properties:
+        content_type:
           type: string
     inference_request:
       title: inference_request
@@ -154,86 +164,6 @@ components:
             $ref: '#/components/schemas/request_output'
       required:
       - inputs
-    response_output:
-      title: response_output
-      type: object
-      properties:
-        name:
-          type: string
-        shape:
-          type: array
-          items:
-            type: integer
-        datatype:
-          type: string
-        parameters:
-          $ref: '#/components/schemas/parameters'
-        data:
-          $ref: '#/components/schemas/tensor_data'
-      required:
-      - name
-      - shape
-      - datatype
-      - data
-    parameters:
-      type: object
-      title: parameters
-      x-examples: {}
-      additionalProperties: true
-      properties:
-        content_type:
-          type: string
-    request_output:
-      title: request_output
-      type: object
-      properties:
-        name:
-          type: string
-        parameters:
-          $ref: '#/components/schemas/parameters'
-      required:
-      - name
-    inference_response:
-      title: inference_response
-      type: object
-      properties:
-        model_name:
-          type: string
-        model_version:
-          type: string
-        id:
-          type: string
-        parameters:
-          $ref: '#/components/schemas/parameters'
-        outputs:
-          type: array
-          items:
-            $ref: '#/components/schemas/response_output'
-      required:
-      - model_name
-      - outputs
-    metadata_tensor:
-      title: metadata_tensor
-      type: object
-      properties:
-        name:
-          type: string
-        datatype:
-          type: string
-        shape:
-          type: array
-          items:
-            type: integer
-        tags:
-          type: object
-          additionalProperties: true
-          properties:
-            content_type:
-              type: string
-      required:
-      - name
-      - datatype
-      - shape
     request_input:
       title: request_input
       type: object
@@ -255,8 +185,25 @@ components:
       - shape
       - datatype
       - data
-    tensor_data:
-      title: tensor_data
+    inference_response:
+      title: inference_response
+      type: object
+      properties:
+        model_name:
+          type: string
+        model_version:
+          type: string
+        id:
+          type: string
+        parameters:
+          $ref: '#/components/schemas/parameters'
+        outputs:
+          type: array
+          items:
+            $ref: '#/components/schemas/response_output'
+      required:
+      - model_name
+      - outputs
     metadata_model_response:
       title: metadata_model_response
       type: object
@@ -280,3 +227,56 @@ components:
       required:
       - name
       - platform
+    response_output:
+      title: response_output
+      type: object
+      properties:
+        name:
+          type: string
+        shape:
+          type: array
+          items:
+            type: integer
+        datatype:
+          type: string
+        parameters:
+          $ref: '#/components/schemas/parameters'
+        data:
+          $ref: '#/components/schemas/tensor_data'
+      required:
+      - name
+      - shape
+      - datatype
+      - data
+    metadata_tensor:
+      title: metadata_tensor
+      type: object
+      properties:
+        name:
+          type: string
+        datatype:
+          type: string
+        shape:
+          type: array
+          items:
+            type: integer
+        tags:
+          type: object
+          additionalProperties: true
+          properties:
+            content_type:
+              type: string
+      required:
+      - name
+      - datatype
+      - shape
+    request_output:
+      title: request_output
+      type: object
+      properties:
+        name:
+          type: string
+        parameters:
+          $ref: '#/components/schemas/parameters'
+      required:
+      - name

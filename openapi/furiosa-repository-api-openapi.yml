@@ -61,6 +61,12 @@ paths:
       x-summary-source: derived
 components:
   schemas:
+    repository_index_request:
+      title: repository_index_request
+      type: object
+      properties:
+        ready:
+          type: boolean
     repository_index_response:
       title: repository_index_response
       type: array
@@ -85,9 +91,3 @@ components:
         - name
         - state
         - reason
-    repository_index_request:
-      title: repository_index_request
-      type: object
-      properties:
-        ready:
-          type: boolean

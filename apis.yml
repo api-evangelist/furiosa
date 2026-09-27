@@ -47,7 +47,7 @@ modified: '2026-08-16'
 image: https://furiosa.ai/favicon.ico
 tags:
 - Artificial Intelligence
-- Machine-Learning
+- Machine Learning
 - Inference
 - Semiconductors
 - NPU
@@ -71,6 +71,7 @@ tags_raw:
 - Developer Tools
 - Compute
 - Infrastructure
+- Machine-Learning
 apis:
 - aid: furiosa:furiosa-llm-openai-server
   name: Furiosa-LLM OpenAI-Compatible Server
