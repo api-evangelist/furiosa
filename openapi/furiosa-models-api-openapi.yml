@@ -93,22 +93,6 @@ paths:
       - Models
 components:
   schemas:
-    tensor_data:
-      title: tensor_data
-    inference_error_response:
-      title: inference_error_response
-      type: object
-      properties:
-        error:
-          type: string
-    parameters:
-      type: object
-      title: parameters
-      x-examples: {}
-      additionalProperties: true
-      properties:
-        content_type:
-          type: string
     inference_request:
       title: inference_request
       type: object
@@ -164,46 +148,16 @@ components:
             $ref: '#/components/schemas/request_output'
       required:
       - inputs
-    request_input:
-      title: request_input
+    tensor_data:
+      title: tensor_data
+    parameters:
       type: object
+      title: parameters
+      x-examples: {}
+      additionalProperties: true
       properties:
-        name:
+        content_type:
           type: string
-        shape:
-          type: array
-          items:
-            type: integer
-        datatype:
-          type: string
-        parameters:
-          $ref: '#/components/schemas/parameters'
-        data:
-          $ref: '#/components/schemas/tensor_data'
-      required:
-      - name
-      - shape
-      - datatype
-      - data
-    inference_response:
-      title: inference_response
-      type: object
-      properties:
-        model_name:
-          type: string
-        model_version:
-          type: string
-        id:
-          type: string
-        parameters:
-          $ref: '#/components/schemas/parameters'
-        outputs:
-          type: array
-          items:
-            $ref: '#/components/schemas/response_output'
-      required:
-      - model_name
-      - outputs
     metadata_model_response:
       title: metadata_model_response
       type: object
@@ -227,6 +181,22 @@ components:
       required:
       - name
       - platform
+    request_output:
+      title: request_output
+      type: object
+      properties:
+        name:
+          type: string
+        parameters:
+          $ref: '#/components/schemas/parameters'
+      required:
+      - name
+    inference_error_response:
+      title: inference_error_response
+      type: object
+      properties:
+        error:
+          type: string
     response_output:
       title: response_output
       type: object
@@ -270,13 +240,43 @@ components:
       - name
       - datatype
       - shape
-    request_output:
-      title: request_output
+    request_input:
+      title: request_input
       type: object
       properties:
         name:
           type: string
+        shape:
+          type: array
+          items:
+            type: integer
+        datatype:
+          type: string
         parameters:
           $ref: '#/components/schemas/parameters'
+        data:
+          $ref: '#/components/schemas/tensor_data'
       required:
       - name
+      - shape
+      - datatype
+      - data
+    inference_response:
+      title: inference_response
+      type: object
+      properties:
+        model_name:
+          type: string
+        model_version:
+          type: string
+        id:
+          type: string
+        parameters:
+          $ref: '#/components/schemas/parameters'
+        outputs:
+          type: array
+          items:
+            $ref: '#/components/schemas/response_output'
+      required:
+      - model_name
+      - outputs
